@@ -120,7 +120,16 @@ describe("clicking mined cell", () => {
 })
 
 describe('clicking blank cell', () => {
-  test.todo('reveals all connected non-mined cells');
+  test('reveals all connected non-mined cells', () => {
+    render(<App />);
+    const nonNumberedCell = within(screen.getByTestId("game")).getAllByRole("button")[4];
+
+    fireEvent.click(nonNumberedCell);
+
+    expect(screen.queryAllByText("0").length).toBe(10);
+    expect(screen.queryAllByText("2").length).toBe(2);
+    expect(screen.queryAllByText("3").length).toBe(3);
+  });
 });
 
 describe('winning game', () => {

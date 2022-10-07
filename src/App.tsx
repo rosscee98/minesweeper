@@ -21,7 +21,13 @@ const cellIds = [
   "E1", "E2", "E3", "E4", "E5",
 ]
 
-const getCells = () => {
+type Cell = {
+  id: string,
+  value: string,
+  clicked: boolean,
+};
+
+const getCells = (): Cell[] => {
   return cellIds.map((cellId, i) => ({
     id: cellId,
     value: input[i],
@@ -52,9 +58,68 @@ const App = () => {
     setCells(newCells);
   }
 
+  const setCellsToClicked = (cellIds: string[]) => {
+    const newCells = cells.map((cell) => {
+      return (
+        cellIds.includes(cell.id)
+          ? { ...cell, clicked: true }
+          : cell
+      )
+    })
+    setCells(newCells);
+  }
+
+  const getNeighbourCellsInRow = (rowIndex: number, rowPos: number) => {
+    const row = cellIds.slice(rowIndex * ROW_LENGTH, ((rowIndex + 1) * ROW_LENGTH));
+    return row
+      .slice(rowPos - 1, rowPos + 2)
+      .filter((cellId) => cellId !== undefined);
+  }
+
+  const getNeighbourCells = (cellId: string): Cell[] => {
+    const cellIndex = cellIds.findIndex((cell) => cell === cellId);
+    const rowIndex = Math.floor(cellIndex / ROW_LENGTH);
+    const rowPos = cellIndex % ROW_LENGTH;
+
+    const neighboursAbove = getNeighbourCellsInRow(rowIndex - 1, rowPos);
+    const neighboursAdjacent = getNeighbourCellsInRow(rowIndex, rowPos);
+    const neighboursBelow = getNeighbourCellsInRow(rowIndex + 1, rowPos);
+
+    return [...neighboursAbove, ...neighboursAdjacent, ...neighboursBelow]
+      .filter((neighbourCellId) => neighbourCellId !== cellId)
+      .map((neighbourCellId) => cells.find((cell) => cell.id === neighbourCellId)!);
+  }
+
+  const recursivelyFindCells = (cellId: string, foundCells: Set<string> = new Set([cellId])): Set<string> => {
+    console.log({ cellId, foundCells })
+    // get neighbour cells
+    let neighbourCells = getNeighbourCells(cellId);
+
+    // filter for any that are not contained within foundCells already
+    neighbourCells = neighbourCells.filter((cell) => !foundCells.has(cell.id));
+
+    // we want to add each of these into foundCells...
+    let newFoundCells = new Set([...Array.from(foundCells), ...neighbourCells.map((cell) => cell.id)]);
+
+    // ...and also add their fresh neighbours IF value === "0".
+    neighbourCells.forEach((cell) => {
+      if (cell.value === "0") {
+        const extras = recursivelyFindCells(cell.id, new Set(newFoundCells));
+        extras.forEach((id) => newFoundCells.add(id));
+      }
+    })
+
+    return newFoundCells;
+  }
+
   const handleClick = (cellId: string, value: string) => {
     if (hasWon || hasLost) return;
     setCellToClicked(cellId);
+    if (value === "0") {
+      const cellsToReveal = recursivelyFindCells(cellId);
+      console.log({ cellsToReveal });
+      setCellsToClicked(Array.from(cellsToReveal));
+    };
   }
 
   const resetGame = () => {
