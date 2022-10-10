@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { arrayToGrid } from './utils/arrayToGrid';
 
@@ -24,36 +24,43 @@ const cellIds = [
 type Cell = {
   id: string,
   value: string,
-  clicked: boolean,
+  isClicked: boolean,
+  isFlagged: boolean,
 };
 
 const getCells = (): Cell[] => {
   return cellIds.map((cellId, i) => ({
     id: cellId,
     value: input[i],
-    clicked: false,
+    isClicked: false,
+    isFlagged: false,
   }))
+}
+
+const cellColour: Record<string, string> = {
+  '1': 'blue',
+  '2': 'green',
+  '3': 'red',
+  '4': 'purple',
+  '5': 'darkred',
+  '6': 'darkturqoise',
+  'default': ''
 }
 
 const App = () => {
   const [cells, setCells] = useState(getCells());
-  const [hasWon, setHasWon] = useState(false);
-  const [hasLost, setHasLost] = useState(false);
+  const [isFlagging, setIsFlagging] = useState(false);
 
-  useEffect(() => {
-    const won = !cells
-      .filter((cell) => cell.clicked === false)
-      .some((cell) => cell.value !== 'X');
-    const lost = cells
-      .filter((cell) => cell.clicked === true)
-      .some((cell) => cell.value === 'X')
-    setHasWon(won);
-    setHasLost(lost);
-  }, [cells]);
+  const hasWon = cells
+    .filter((cell) => cell.isClicked === false)
+    .every((cell) => cell.value === 'X');
+  const hasLost = cells
+    .filter((cell) => cell.isClicked === true)
+    .some((cell) => cell.value === 'X')
 
-  const setCellToClicked = (cellId: string) => {
+  const updateCell = (cellId: string, property: "isFlagged" | "isClicked", value: boolean = true) => {
     const newCells = cells.map((cell) => {
-      return (cell.id === cellId ? { ...cell, clicked: true } : cell);
+      return (cell.id === cellId ? { ...cell, [property]: value } : cell)
     })
     setCells(newCells);
   }
@@ -62,7 +69,7 @@ const App = () => {
     const newCells = cells.map((cell) => {
       return (
         cellIds.includes(cell.id)
-          ? { ...cell, clicked: true }
+          ? { ...cell, isClicked: true }
           : cell
       )
     })
@@ -81,79 +88,99 @@ const App = () => {
     const rowIndex = Math.floor(cellIndex / ROW_LENGTH);
     const rowPos = cellIndex % ROW_LENGTH;
 
-    const neighboursAbove = getNeighbourCellsInRow(rowIndex - 1, rowPos);
-    const neighboursAdjacent = getNeighbourCellsInRow(rowIndex, rowPos);
-    const neighboursBelow = getNeighbourCellsInRow(rowIndex + 1, rowPos);
+    let neighbours: string[] = [];
+    [-1, 0, 1].forEach((offset) => neighbours.push(...getNeighbourCellsInRow(rowIndex + offset, rowPos)));
 
-    return [...neighboursAbove, ...neighboursAdjacent, ...neighboursBelow]
+    return neighbours
       .filter((neighbourCellId) => neighbourCellId !== cellId)
       .map((neighbourCellId) => cells.find((cell) => cell.id === neighbourCellId)!);
   }
 
-  const recursivelyFindCells = (cellId: string, foundCells: Set<string> = new Set([cellId])): Set<string> => {
-    console.log({ cellId, foundCells })
-    // get neighbour cells
-    let neighbourCells = getNeighbourCells(cellId);
+  const recursivelyCheckCells = (cellId: string, checkedCells: Set<string> = new Set([cellId])): Set<string> => {
+    let uncheckedNeighbourCells = getNeighbourCells(cellId)
+      .filter((cell) => !checkedCells.has(cell.id));
 
-    // filter for any that are not contained within foundCells already
-    neighbourCells = neighbourCells.filter((cell) => !foundCells.has(cell.id));
+    let newCheckedCells = new Set([...Array.from(checkedCells), ...uncheckedNeighbourCells.map((cell) => cell.id)]);
 
-    // we want to add each of these into foundCells...
-    let newFoundCells = new Set([...Array.from(foundCells), ...neighbourCells.map((cell) => cell.id)]);
-
-    // ...and also add their fresh neighbours IF value === "0".
-    neighbourCells.forEach((cell) => {
+    uncheckedNeighbourCells.forEach((cell) => {
       if (cell.value === "0") {
-        const extras = recursivelyFindCells(cell.id, new Set(newFoundCells));
-        extras.forEach((id) => newFoundCells.add(id));
+        const neighboursOfNeighbours = recursivelyCheckCells(cell.id, new Set(newCheckedCells));
+        neighboursOfNeighbours.forEach((id) => newCheckedCells.add(id));
       }
     })
 
-    return newFoundCells;
+    return newCheckedCells;
   }
 
-  const handleClick = (cellId: string, value: string) => {
+  const handleClick = (cellId: string, cellValue: string) => {
     if (hasWon || hasLost) return;
-    setCellToClicked(cellId);
-    if (value === "0") {
-      const cellsToReveal = recursivelyFindCells(cellId);
-      console.log({ cellsToReveal });
+
+    const { isClicked, isFlagged } = cells.find((cell) => cell.id === cellId)!;
+
+    if (isFlagging && !isClicked) {
+      updateCell(cellId, "isFlagged", !isFlagged);
+    }
+    else if (!isFlagged) {
+      updateCell(cellId, "isClicked")
+    };
+
+    if (cellValue === "0") {
+      const cellsToReveal = recursivelyCheckCells(cellId);
       setCellsToClicked(Array.from(cellsToReveal));
     };
   }
 
   const resetGame = () => {
     setCells(getCells());
-    setHasLost(false);
+    setIsFlagging(false);
+  }
+
+  const getTextContent = (value: string, isClicked: boolean, isFlagged: boolean): string => {
+    const isMine = value === "X";
+    const isBlank = value === "0";
+
+    if (hasWon || hasLost) {
+      return (isMine || (isClicked && !isBlank)) ? value : "";
+    }
+
+    if (isFlagged) {
+      return "F";
+    }
+    else {
+      return (isClicked && !isBlank) ? value : "";
+    }
   }
 
   return (
     <>
       <button onClick={resetGame} data-testid="reset">Reset</button>
-      <div className="game" data-testid="game">
-        {grid.map((row, rowIndex) => (
-          <div key={`row-${rows[rowIndex]}`}>
-            {row.map((value, cellIndex) => {
-              const cellId = `${rows[rowIndex]}${cellIndex + 1}`;
-              const isClicked = cells.find((cell) => cell.id === cellId)!.clicked;
-              return (
-                <button
-                  key={`cell-${cellId}`}
-                  className={`${isClicked ? 'clicked' : ''}`}
-                  onClick={() => handleClick(cellId, value)}
-                > {
-                    (hasWon || hasLost) ?
-                      (value === "X" || isClicked) && value
-                      :
-                      isClicked && value
-                  }</button>
-              )
-            })}
-          </div>
-        ))}
+      <button onClick={() => setIsFlagging(!isFlagging)}>Flag</button>
+      <div className="container">
+        <div className="game" data-testid="game">
+          {grid.map((row, rowIndex) => (
+            <div key={`row-${rows[rowIndex]}`}>
+              {row.map((value, cellIndex) => {
+                const cellId = `${rows[rowIndex]}${cellIndex + 1}`;
+                const { isClicked, isFlagged } = cells.find((cell) => cell.id === cellId)!;
+
+                return (
+                  <button
+                    key={`cell-${cellId}`}
+                    data-testid={`cell-${cellId}`}
+                    className={`cell ${isClicked ? `clicked ${cellColour[value]}` : ''}`}
+                    onClick={() => handleClick(cellId, value)}
+                  > {
+                      getTextContent(value, isClicked, isFlagged)
+                    }</button>
+                )
+              })}
+            </div>
+          ))}
+        </div>
       </div>
-      {hasLost && "You lost!"}
-      {hasWon && "You won!"}
+      <p>{hasLost && "You lost!"}</p>
+      <p>{hasWon && "You won!"}</p>
+      <p>{isFlagging ? "Flagging on" : "Flagging off"}</p>
     </>
   );
 }
