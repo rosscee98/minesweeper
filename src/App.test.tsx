@@ -5,16 +5,90 @@ import App from './App';
 const FIRST_VALUE = "2";
 const NON_MINED_CELLS = [0, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 17, 18, 19, 20, 22, 23, 24];
 
-test('renders 5 rows', () => {
-  render(<App />);
-  const game = screen.getByTestId("game");
-  expect(game.children.length).toBe(5);
-})
+describe('difficulty', () => {
+  describe('easy', () => {
+    test('game starts on easy', () => {
+      render(<App />);
+      const easyLabel = screen.getByText("Mode: easy");
 
-test('renders 25 cells', () => {
-  render(<App />);
-  const game = screen.getByTestId("game");
-  expect(within(game).getAllByRole("button").length).toBe(25);
+      expect(easyLabel).toBeInTheDocument();
+    });
+
+    test('can set to easy', () => {
+      render(<App />);
+      const easyButton = screen.getByRole("button", { name: "easy" });
+      const mediumButton = screen.getByRole("button", { name: "medium" });
+
+      fireEvent.click(mediumButton);
+      fireEvent.click(easyButton);
+
+      const easyLabel = screen.getByText("Mode: easy");
+
+      expect(easyLabel).toBeInTheDocument();
+    })
+
+    test('renders 5 rows', () => {
+      render(<App />);
+      const game = screen.getByTestId("game");
+      expect(game.children.length).toBe(5);
+    })
+
+    test('renders 25 cells', () => {
+      render(<App />);
+      const game = screen.getByTestId("game");
+      expect(within(game).getAllByRole("button").length).toBe(25);
+    })
+  });
+
+  describe('medium', () => {
+    test('can set to medium', () => {
+      render(<App />);
+      const mediumButton = screen.getByRole("button", { name: "medium" });
+
+      fireEvent.click(mediumButton);
+
+      const mediumLabel = screen.getByText("Mode: medium");
+
+      expect(mediumLabel).toBeInTheDocument();
+    })
+
+    test('renders 16 rows', () => {
+      render(<App />);
+      const game = screen.getByTestId("game");
+      expect(game.children.length).toBe(16);
+    })
+
+    test('renders 256 cells', () => {
+      render(<App />);
+      const game = screen.getByTestId("game");
+      expect(within(game).getAllByRole("button").length).toBe(256);
+    })
+  })
+
+  describe('hard', () => {
+    test('can set to hard', () => {
+      render(<App />);
+      const hardButton = screen.getByRole("button", { name: "hard" });
+
+      fireEvent.click(hardButton);
+
+      const hardLabel = screen.getByText("Mode: hard");
+
+      expect(hardLabel).toBeInTheDocument();
+    })
+
+    test('renders 30 rows', () => {
+      render(<App />);
+      const game = screen.getByTestId("game");
+      expect(game.children.length).toBe(30);
+    })
+
+    test('renders 480 cells', () => {
+      render(<App />);
+      const game = screen.getByTestId("game");
+      expect(within(game).getAllByRole("button").length).toBe(480);
+    })
+  })
 })
 
 test('cell value hidden until clicked', () => {
@@ -205,7 +279,7 @@ describe('flagging', () => {
   test('clicking cell creates flag without revealing cell value', () => {
     render(<App />);
     const flagButton = screen.getByRole("button", { name: "Flag" });
-    const cell = screen.getByTestId("cell-A1");
+    const cell = screen.getByTestId("cell-0");
 
     fireEvent.click(flagButton);
     fireEvent.click(cell);
@@ -217,7 +291,7 @@ describe('flagging', () => {
   test('clicking flag removes it', () => {
     render(<App />);
     const flagButton = screen.getByRole("button", { name: "Flag" });
-    const cell = screen.getByTestId("cell-A1");
+    const cell = screen.getByTestId("cell-0");
 
     fireEvent.click(flagButton);
     fireEvent.click(cell);
@@ -230,7 +304,7 @@ describe('flagging', () => {
   test('cannot click flagged cell', () => {
     render(<App />);
     const flagButton = screen.getByRole("button", { name: "Flag" });
-    const minedCell = screen.getByTestId("cell-A2");
+    const minedCell = screen.getByTestId("cell-1");
 
     fireEvent.click(flagButton);
     fireEvent.click(minedCell);
@@ -243,7 +317,7 @@ describe('flagging', () => {
   test('cannot flag clicked cell', () => {
     render(<App />);
     const flagButton = screen.getByRole("button", { name: "Flag" });
-    const cell = screen.getByTestId("cell-A1");
+    const cell = screen.getByTestId("cell-0");
 
     fireEvent.click(cell);
     fireEvent.click(flagButton);
