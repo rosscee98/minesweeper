@@ -1,28 +1,23 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import Game from './components/game/game';
 import { Cell, Difficulty } from './types';
+import { arrayToGrid } from './utils/arrayToGrid';
+import { generateBoard } from './utils/generateBoard';
+import { getModeDetails } from './utils/getModeDetails';
 
-const input = [
-  "2", "X", "2", "0", "0",
-  "3", "X", "3", "0", "0",
-  "3", "X", "3", "0", "0",
-  "3", "X", "3", "0", "0",
-  "2", "X", "2", "0", "0",
-];
-// const input = [
-//   "2", "X", "2", "0", "0", "0", "0", "0",
-//   "3", "X", "3", "0", "0", "0", "0", "0",
-//   "3", "X", "3", "0", "0", "0", "0", "0",
-//   "3", "X", "3", "0", "0", "0", "0", "0",
-//   "2", "X", "2", "0", "0", "0", "0", "0",
-//   "1", "1", "1", "0", "0", "0", "0", "0",
-// ];
-
-const getCells = (): Cell[] => {
-  return input.map((_, i) => ({
+const getCells = (mode: Difficulty = "easy"): Cell[] => {
+  // const board = [
+  //   "2", "X", "2", "0", "0",
+  //   "3", "X", "3", "0", "0",
+  //   "3", "X", "3", "0", "0",
+  //   "3", "X", "3", "0", "0",
+  //   "2", "X", "2", "0", "0",
+  // ];
+  const board = generateBoard(mode);
+  return board.map((value, i) => ({
     id: i,
-    value: input[i],
+    value,
     isClicked: false,
     isFlagged: false,
   }))
@@ -40,29 +35,34 @@ const App = () => {
     .filter((cell) => cell.isClicked === true)
     .some((cell) => cell.value === 'X')
 
-  const resetGame = () => {
-    setCells(getCells());
+  const resetGame = useCallback(() => {
+    setCells(getCells(difficulty));
     setIsFlagging(false);
-  }
+  }, [difficulty]);
+
+  useEffect(() => {
+    resetGame();
+  }, [difficulty, resetGame]);
 
   const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
 
-  const rowLength = {
-    'easy': 5,
-    'medium': 16,
-    'hard': 30
-  }[difficulty];
+  const { rowLength } = getModeDetails(difficulty);
+
+  const grid = arrayToGrid(cells.map((cell) => cell.value), rowLength);
 
   return (
     <>
-      <Game {...{ cells, setCells, isFlagging, hasWon, hasLost, input, rowLength }} />
+      <Game {...{ cells, setCells, isFlagging, hasWon, hasLost, grid, rowLength }} />
       <button onClick={resetGame} data-testid="reset">Reset</button>
       <button onClick={() => setIsFlagging(!isFlagging)}>Flag</button>
       <div className="difficulty-group">
         {
           difficulties.map((label) => {
             return (
-              <button key={label} onClick={() => setDifficulty(label)}>{label}</button>
+              <button key={label} onClick={() => {
+                setDifficulty(label);
+                resetGame();
+              }}>{label}</button>
             )
           })
         }
