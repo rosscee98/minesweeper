@@ -5,4 +5,8 @@ export type Cell = {
     isFlagged: boolean,
 };
 
-export type Difficulty = "easy" | "medium" | "hard";
+export enum Mode {
+    Easy = "easy",
+    Medium = "medium",
+    Hard = "hard",
+}

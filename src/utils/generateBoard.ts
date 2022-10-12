@@ -1,4 +1,4 @@
-import { Difficulty } from '../types';
+import { Mode } from '../types';
 import { arrayToGrid } from './arrayToGrid';
 import { getModeDetails } from './getModeDetails';
 
@@ -58,7 +58,7 @@ const generateBoardFromInput = (input: string[], rowCount: number, rowLength: nu
     return output;
 }
 
-export const generateBoard = (mode: Difficulty = "easy"): string[] => {
+export const generateBoard = (mode: Mode = Mode.Easy): string[] => {
     const { rowCount, rowLength, mineCount } = getModeDetails(mode);
     const input = generateRandomInput(rowCount * rowLength, mineCount);
     return generateBoardFromInput(input, rowCount, rowLength);

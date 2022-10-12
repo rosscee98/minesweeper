@@ -1,6 +1,6 @@
-import { Difficulty } from '../types';
+import { Mode } from '../types';
 
-export const getModeDetails = (mode: Difficulty = "easy") => {
+export const getModeDetails = (mode: Mode = Mode.Easy) => {
     return {
         'easy': {
             rowCount: 8,

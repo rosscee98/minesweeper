@@ -102,7 +102,7 @@ const GameCell = ({ cells, setCells, rowLength, hasWon, hasLost, isFlagging, row
     const getNeighbourCellsInRow = (rowIndex: number, rowPos: number) => {
         const row = cellIds.slice(rowIndex * rowLength, ((rowIndex + 1) * rowLength));
         return row
-            .slice(rowPos - 1, rowPos + 2)
+            .slice(((rowPos - 1) > 0 ? (rowPos - 1) : 0), rowPos + 2)
             .filter((cellId) => cellId !== undefined);
     }
 

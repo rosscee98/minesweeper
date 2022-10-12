@@ -1,19 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import Game from './components/game/game';
-import { Cell, Difficulty } from './types';
+import { Cell, Mode } from './types';
 import { arrayToGrid } from './utils/arrayToGrid';
 import { generateBoard } from './utils/generateBoard';
 import { getModeDetails } from './utils/getModeDetails';
 
-const getCells = (mode: Difficulty = "easy"): Cell[] => {
-  // const board = [
-  //   "2", "X", "2", "0", "0",
-  //   "3", "X", "3", "0", "0",
-  //   "3", "X", "3", "0", "0",
-  //   "3", "X", "3", "0", "0",
-  //   "2", "X", "2", "0", "0",
-  // ];
+const getCells = (mode: Mode = Mode.Easy): Cell[] => {
   const board = generateBoard(mode);
   return board.map((value, i) => ({
     id: i,
@@ -26,7 +19,7 @@ const getCells = (mode: Difficulty = "easy"): Cell[] => {
 const App = () => {
   const [cells, setCells] = useState(getCells());
   const [isFlagging, setIsFlagging] = useState(false);
-  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [mode, setMode] = useState(Mode.Easy);
 
   const hasWon = cells
     .filter((cell) => cell.isClicked === false)
@@ -36,17 +29,15 @@ const App = () => {
     .some((cell) => cell.value === 'X')
 
   const resetGame = useCallback(() => {
-    setCells(getCells(difficulty));
+    setCells(getCells(mode));
     setIsFlagging(false);
-  }, [difficulty]);
+  }, [mode]);
 
   useEffect(() => {
     resetGame();
-  }, [difficulty, resetGame]);
+  }, [mode, resetGame]);
 
-  const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
-
-  const { rowLength } = getModeDetails(difficulty);
+  const { rowLength } = getModeDetails(mode);
 
   const grid = arrayToGrid(cells.map((cell) => cell.value), rowLength);
 
@@ -57,12 +48,12 @@ const App = () => {
       <button onClick={() => setIsFlagging(!isFlagging)}>Flag</button>
       <div className="difficulty-group">
         {
-          difficulties.map((label) => {
+          Object.keys(Mode).map((mode) => {
             return (
-              <button key={label} onClick={() => {
-                setDifficulty(label);
+              <button key={mode} onClick={() => {
+                setMode(mode.toLowerCase() as Mode);
                 resetGame();
-              }}>{label}</button>
+              }}>{mode}</button>
             )
           })
         }
@@ -70,7 +61,7 @@ const App = () => {
       <p>{hasLost && "You lost!"}</p>
       <p>{hasWon && "You won!"}</p>
       <p>{isFlagging ? "Flagging on" : "Flagging off"}</p>
-      <p>Mode: {difficulty}</p>
+      <p>Mode: {mode}</p>
     </>
   );
 }
