@@ -313,4 +313,13 @@ describe('flagging', () => {
 
         expect(queryByText("F")).not.toBeInTheDocument();
     });
+
+    test('right click flags a cell', () => {
+        const { getByTestId, getByText } = setup();
+        const cell = getByTestId("cell-0");
+
+        fireEvent.contextMenu(cell);
+
+        expect(getByText("F")).toBeInTheDocument();
+    })
 })

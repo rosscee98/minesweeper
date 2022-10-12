@@ -63,6 +63,14 @@ const GameCell = ({ cells, setCells, rowLength, hasWon, hasLost, isFlagging, row
         };
     }
 
+    const handleRightClick = (cellId: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.preventDefault();
+        const { isClicked, isFlagged } = cells.find((cell) => cell.id === cellId)!;
+        if (!isClicked) {
+            updateCell(cellId, "isFlagged", !isFlagged);
+        }
+    }
+
     const updateCell = (cellId: number, property: "isFlagged" | "isClicked", value: boolean = true) => {
         const newCells = cells.map((cell) => {
             return (cell.id === cellId ? { ...cell, [property]: value } : cell)
@@ -123,6 +131,7 @@ const GameCell = ({ cells, setCells, rowLength, hasWon, hasLost, isFlagging, row
             data-testid={`cell-${cellId}`}
             className={`cell ${isClicked ? `clicked ${cellColour[value]}` : ''}`}
             onClick={() => handleClick(cellId, value)}
+            onContextMenu={(e) => handleRightClick(cellId, e)}
         > {
                 getTextContent(value, isClicked, isFlagged)
             }</button>
