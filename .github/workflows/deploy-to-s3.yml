@@ -1,9 +1,8 @@
-name: Deploy to S3
+name: Deploy to S3 and invalidate CloudFront distribution
 on:
   push:
     branches:
       - main
-      - github-actions
 jobs:
   run:
     runs-on: ubuntu-latest

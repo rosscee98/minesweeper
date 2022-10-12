@@ -6,7 +6,8 @@
 .container {
   width: fit-content;
   padding: 10px;
-  background-color: rgb(198, 198, 198);
+  /* background-color: rgb(198, 198, 198); */
+  background-color: blue;
   border-top: 2px var(--border-light);
   border-left: 2px var(--border-light);
   border-right: 2px var(--border-dark);
