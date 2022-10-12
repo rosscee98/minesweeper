@@ -66,6 +66,7 @@ describe('modes', () => {
         const { getByText } = setup();
 
         expect(getByText("Mode: easy")).toBeInTheDocument();
+        expect(getByText("Mines remaining: 10")).toBeInTheDocument();
     });
 
     test('can set to easy', () => {
@@ -77,6 +78,7 @@ describe('modes', () => {
         fireEvent.click(easyButton);
 
         expect(getByText("Mode: easy")).toBeInTheDocument();
+        expect(getByText("Mines remaining: 10")).toBeInTheDocument();
     })
 
     test('can set to medium', () => {
@@ -86,6 +88,7 @@ describe('modes', () => {
         fireEvent.click(mediumButton);
 
         expect(getByText("Mode: medium")).toBeInTheDocument();
+        expect(getByText("Mines remaining: 40")).toBeInTheDocument();
     })
 
     test('can set to hard', () => {
@@ -95,6 +98,7 @@ describe('modes', () => {
         fireEvent.click(hardButton);
 
         expect(getByText("Mode: hard")).toBeInTheDocument();
+        expect(getByText("Mines remaining: 99")).toBeInTheDocument();
     })
 
     test.each([
@@ -181,6 +185,12 @@ describe('winning game', () => {
         fireEvent.click(minedCell);
 
         expect(queryAllByText('X').length).toBe(5);
+    })
+
+    test('mine counter is 0', () => {
+        const { getByText } = setupWonGame();
+
+        expect(getByText("Mines remaining: 0")).toBeInTheDocument();
     })
 });
 
@@ -321,5 +331,14 @@ describe('flagging', () => {
         fireEvent.contextMenu(cell);
 
         expect(getByText("F")).toBeInTheDocument();
+    })
+
+    test('flagging decrements remaining mine counter', () => {
+        const { getByTestId, getByText } = setup();
+        const minedCell = getByTestId("cell-1");
+
+        fireEvent.contextMenu(minedCell);
+
+        expect(getByText("Mines remaining: 9")).toBeInTheDocument();
     })
 })

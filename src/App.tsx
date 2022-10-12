@@ -41,6 +41,10 @@ const App = () => {
 
   const grid = arrayToGrid(cells.map((cell) => cell.value), rowLength);
 
+  const minesRemaining = hasWon
+    ? 0
+    : getModeDetails(mode).mineCount - cells.filter((cell) => cell.isFlagged).length
+
   return (
     <>
       <Game {...{ cells, setCells, isFlagging, hasWon, hasLost, grid, rowLength }} />
@@ -62,6 +66,7 @@ const App = () => {
       <p>{hasWon && "You won!"}</p>
       <p>{isFlagging ? "Flagging on" : "Flagging off"}</p>
       <p>Mode: {mode}</p>
+      <p>Mines remaining: {minesRemaining}</p>
     </>
   );
 }
