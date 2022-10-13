@@ -17,9 +17,13 @@ const getCells = (mode: Mode = Mode.Easy): Cell[] => {
 }
 
 const App = () => {
-  const [cells, setCells] = useState(getCells());
+  const [cells, setCells] = useState<Cell[]>([]);
   const [isFlagging, setIsFlagging] = useState(false);
   const [mode, setMode] = useState(Mode.Easy);
+
+  useEffect(() => {
+    setCells(getCells());
+  }, []);
 
   const hasWon = cells
     .filter((cell) => cell.isClicked === false)

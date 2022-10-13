@@ -37,7 +37,7 @@ const generateBoardFromInput = (input: string[], rowCount: number, rowLength: nu
             ? countAdjacentMinesInRow(grid[rowIndex - 1], rowPos)
             : 0;
         const countCurrRow = countAdjacentMinesInRow(grid[rowIndex], rowPos);
-        const countNextRow = rowIndex + 1 < rowLength
+        const countNextRow = rowIndex + 1 < rowCount
             ? countAdjacentMinesInRow(grid[rowIndex + 1], rowPos)
             : 0;
         return countPrevRow + countCurrRow + countNextRow;
