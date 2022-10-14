@@ -15,3 +15,8 @@ export enum InputValue {
     Mine = "X",
     Free = "-",
 }
+
+export type Coordinates = {
+    x: number,
+    y: number,
+}
