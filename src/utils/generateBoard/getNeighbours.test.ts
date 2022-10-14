@@ -7,6 +7,31 @@ const setupFiveByFive = () => {
     return { input, rowLength };
 }
 
+test('returns empty array when rowLength is negative', () => {
+    const input = Array(4).fill(InputValue.Free)
+    const rowLength = -1;
+
+    expect(getNeighbours(input, { x: 0, y: 0 }, rowLength))
+        .toEqual([]);
+})
+
+test('returns empty array when coordinate has negative value', () => {
+    const input = Array(4).fill(InputValue.Free);
+    const rowLength = 2;
+
+    expect(getNeighbours(input, { x: -1, y: 0 }, rowLength))
+        .toEqual([]);
+    expect(getNeighbours(input, { x: 0, y: -1 }, rowLength))
+        .toEqual([]);
+})
+
+test('returns empty array when input is empty array', () => {
+    const input: InputValue[] = [];
+
+    expect(getNeighbours(input, { x: 0, y: 0 }, 2))
+        .toEqual([]);
+})
+
 test('2x2 input', () => {
     const input = Array(4).fill(InputValue.Free)
     const rowLength = 2;

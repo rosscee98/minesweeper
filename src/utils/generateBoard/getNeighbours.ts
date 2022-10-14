@@ -3,6 +3,10 @@ import { Coordinates } from '../../types';
 export const getNeighbours = <T>(input: T[], { x, y }: Coordinates, rowLength: number): T[] => {
     const neighbourCoordinates: Coordinates[] = [];
 
+    if (x < 0 || y < 0) {
+        return [];
+    }
+
     [-1, 0, 1].forEach((yOffset) => {
         if ((y + yOffset) < 0 || (y + yOffset) >= (input.length / rowLength)) {
             return;
