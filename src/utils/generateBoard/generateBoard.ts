@@ -8,5 +8,3 @@ export const generateBoard = (mode: Mode = Mode.Easy) => {
     const input = generateRandomInput(rowCount * rowLength, mineCount);
     return generateBoardFromInput(input, rowLength);
 }
-
-export default generateBoard;

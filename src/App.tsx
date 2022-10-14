@@ -3,7 +3,7 @@ import './App.css';
 import Game from './components/game/game';
 import { Cell, Mode } from './types';
 import { arrayToGrid } from './utils/arrayToGrid';
-import { generateBoard } from './utils/generateBoardOLD';
+import { generateBoard } from './utils/generateBoard/generateBoard';
 import { getModeDetails } from './utils/getModeDetails';
 
 const getCells = (mode: Mode = Mode.Easy): Cell[] => {
@@ -20,10 +20,6 @@ const App = () => {
   const [cells, setCells] = useState<Cell[]>([]);
   const [isFlagging, setIsFlagging] = useState(false);
   const [mode, setMode] = useState(Mode.Easy);
-
-  useEffect(() => {
-    setCells(getCells());
-  }, []);
 
   const hasWon = cells
     .filter((cell) => cell.isClicked === false)
@@ -60,7 +56,6 @@ const App = () => {
             return (
               <button key={mode} onClick={() => {
                 setMode(mode.toLowerCase() as Mode);
-                resetGame();
               }}>{mode}</button>
             )
           })
