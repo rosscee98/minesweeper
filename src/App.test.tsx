@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 import { Mode } from './types';
-import * as generateBoard from './utils/generateBoard';
+import * as generateBoard from './utils/generateBoardOLD';
 
 const EASY_BOARD = [
     "2", "X", "2", "0", "0", "0", "0", "0",

@@ -10,3 +10,8 @@ export enum Mode {
     Medium = "medium",
     Hard = "hard",
 }
+
+export enum InputValue {
+    Mine = "X",
+    Free = "-",
+}

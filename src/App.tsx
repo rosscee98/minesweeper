@@ -3,7 +3,7 @@ import './App.css';
 import Game from './components/game/game';
 import { Cell, Mode } from './types';
 import { arrayToGrid } from './utils/arrayToGrid';
-import { generateBoard } from './utils/generateBoard';
+import { generateBoard } from './utils/generateBoardOLD';
 import { getModeDetails } from './utils/getModeDetails';
 
 const getCells = (mode: Mode = Mode.Easy): Cell[] => {
